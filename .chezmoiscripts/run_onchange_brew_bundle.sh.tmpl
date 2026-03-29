@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# {{ include "brew/Brewfile" | sha256sum }}
+
+echo "Updating brew"
+brew update
+
+echo "Install brew packages"
+brew bundle --file="{{ .chezmoi.sourceDir }}/brew/Brewfile"
