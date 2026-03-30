@@ -1,0 +1,4 @@
+[neovim]
+  type        = "git-repo"
+  url         = "https://github.com/p3aga/nvim.lua.git"
+  targetPath  = ".config/nvim"

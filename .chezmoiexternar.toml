@@ -1,3 +1,0 @@
-[".config/nvim"]
-    type = "git-clone"
-    url  = "https://github.com/p3aga/nvim.lua.git"
