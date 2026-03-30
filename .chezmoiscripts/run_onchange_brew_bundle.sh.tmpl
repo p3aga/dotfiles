@@ -1,6 +1,11 @@
 #!/bin/bash
 
 # {{ include "brew/Brewfile" | sha256sum }}
+if ! command -v brew &> /dev/null
+then
+    echo "Homebrew not found, skipping brew bundle"
+    exit 0
+fi
 
 echo "Updating brew"
 brew update
