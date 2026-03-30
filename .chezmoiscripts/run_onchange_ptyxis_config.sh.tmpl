@@ -1,0 +1,6 @@
+#!/bin/bash 
+
+# {{ include "ptyxis/ptyxis.conf" | sha256sum }}
+
+echo "Loading Ptyxis config"
+dconf load /org/gnome/Ptyxis/ < "{{ .chezmoi.sourceDir }}/ptyxis/ptyxis.conf"

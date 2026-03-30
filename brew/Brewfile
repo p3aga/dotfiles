@@ -1,6 +1,7 @@
 # tap 'xo/xo'
 # brew 'atuin'
 brew 'bat'
+# brew 'bitwarden-cli'
 brew 'eza'
 brew 'fd'
 brew 'glow'
