@@ -14,9 +14,6 @@ Current layout:
 - `60-history.zsh`: history settings
 - `70-aliases.zsh`: aliases loader
 - `aliases/`: aliases split by theme
-	- `aliases/ls.zsh`: `ls` aliases
-	- `aliases/eza.zsh`: `eza` aliases
-	- `aliases/dev.zsh`: development helper aliases
 - `80-functions.zsh`: shell helper functions
 
 To add a new module, create a file like `65-something.zsh`.

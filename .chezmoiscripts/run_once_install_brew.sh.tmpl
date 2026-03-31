@@ -1,8 +1,9 @@
 #!/bin/bash
 
-{{ if not (lookPath "brew") }}
-echo "Installing Homebrew"
-NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+if ! command -v brew &> /dev/null
+then
+  echo "Installing Homebrew"
+  NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-{{ end }}
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
