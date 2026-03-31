@@ -2,10 +2,10 @@
 
 # {{ include "fonts/maple-mono-nerd.tar.gz" | sha256sum }}
 
-if [ ! -d "$HOME/.local/share/fonts" ]; then
+{{ if not (joinPath .chezmoi.homeDir ".local/share/fonts") }}
     echo "Creating fonts directory"
-    mkdir -p "$HOME/.local/share/fonts"
-fi
+    mkdir -p "{{ joinPath .chezmoi.homeDir ".local/share/fonts" }}"
+{{ end }}
 
 echo "Installing fonts"
-tar -xzf "{{ .chezmoi.sourceDir }}/fonts/maple-mono-nerd.tar.gz" -C "$HOME/.local/share/fonts"
+tar -xzf "{{ .chezmoi.sourceDir }}/fonts/maple-mono-nerd.tar.gz" -C "{{ joinPath .chezmoi.homeDir ".local/share/fonts" }}"

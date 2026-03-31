@@ -1,9 +1,8 @@
 #!/bin/bash
 
-if ! command -v brew &> /dev/null
-then
+{{ if not findExecutable "brew" }}
   echo "Installing Homebrew"
   NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+{{ end }}
 
-  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-fi
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
