@@ -2,10 +2,12 @@
 
 # {{ include "brew/Brewfile" | sha256sum }}
 
-{{ if not findExecutable "brew" }}
-    echo "Homebrew not found, skipping brew bundle"
-    exit 0
+{{ if not (stat "/home/linuxbrew/.linuxbrew/bin/brew") }}
+  echo "Homebrew not found, skipping brew bundle"
+  exit 0
 {{ end }}
+
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 echo "Updating brew"
 brew update
