@@ -1,8 +1,6 @@
 #!/bin/bash
 
-{{ if or (stat "/.dockerenv") (stat "/run/.containerenv") }}
-  echo "Container detected; skipping podman socket enablement"
-  exit 0
+{{ if not (or (stat "/.dockerenv") (stat "/run/.containerenv")) }}
+  echo "Enabling podman.socket for user"
+  sudo systemctl enable --user --now podman.socket
 {{ end }}
-
-sudo systemctl enable --user --now podman.socket

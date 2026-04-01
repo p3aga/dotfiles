@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# {{ include "fonts/maple-mono-nerd.tar.gz" | sha256sum }}
+# maple-mono-nerd hash: {{ include "fonts/maple-mono-nerd.tar.gz" | sha256sum }}
 
 {{ if not (joinPath .chezmoi.homeDir ".local/share/fonts" | stat) }}
   echo "Creating fonts directory"

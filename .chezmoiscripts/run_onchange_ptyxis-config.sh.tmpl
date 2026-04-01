@@ -1,11 +1,8 @@
 #!/bin/bash 
 
-# {{ include "ptyxis/ptyxis.conf" | sha256sum }}
+# ptyxis.conf hash: {{ include "ptyxis/ptyxis.conf" | sha256sum }}
 
-{{ if or (stat "/.dockerenv") (stat "/run/.containerenv") }}
-  echo "Container detected; skipping ptyxis config loading"
-  exit 0
+{{ if not (or (stat "/.dockerenv") (stat "/run/.containerenv")) }}
+  echo "Loading ptyxis config"
+  dconf load /org/gnome/Ptyxis/ < "{{ .chezmoi.sourceDir }}/ptyxis/ptyxis.conf"
 {{ end }}
-
-echo "Loading Ptyxis config"
-dconf load /org/gnome/Ptyxis/ < "{{ .chezmoi.sourceDir }}/ptyxis/ptyxis.conf"

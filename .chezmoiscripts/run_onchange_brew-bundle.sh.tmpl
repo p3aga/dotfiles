@@ -1,16 +1,10 @@
 #!/bin/bash
 
-# {{ include "brew/Brewfile" | sha256sum }}
+# Brewfile hash: {{ include "brew/Brewfile" | sha256sum }}
 
-{{ if not (stat "/home/linuxbrew/.linuxbrew/bin/brew") }}
-  echo "Homebrew not found, skipping brew bundle"
-  exit 0
+{{ if stat "/home/linuxbrew/.linuxbrew/bin/brew" }}
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+  brew update
+  brew bundle --file="{{ .chezmoi.sourceDir }}/brew/Brewfile"
 {{ end }}
-
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-
-echo "Updating brew"
-brew update
-
-echo "Install brew packages"
-brew bundle --file="{{ .chezmoi.sourceDir }}/brew/Brewfile"

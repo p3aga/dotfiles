@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# .tmux.conf hash: {{ include ".tmux.conf" | sha256sum }}
+
+{{ $tpmPath := joinPath .chezmoi.homeDir ".tmux/plugins/tpm" }}
+{{ if not (stat $tpmPath) }}
+  echo "Cloning tmux plugin manager"
+  git clone https://github.com/tmux-plugins/tpm.git {{ $tpmPath }}
+{{ end }}
+
+echo "Installing tmux plugins"
+{{ $tpmPath }}/bin/install_plugins
