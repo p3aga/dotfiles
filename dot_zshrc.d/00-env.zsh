@@ -1,5 +1,6 @@
 # Environment variables and shell startup performance.
 export EDITOR=nvim
+export GOPATH=$HOME/.go
 
 if command -v vagrant &> /dev/null; then
   export VAGRANT_DEFAULT_PROVIDER=libvirt
