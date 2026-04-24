@@ -1,4 +1,5 @@
 # tap 'xo/xo'
+tap 'hashicorp/tap'
 
 # brew 'atuin'
 brew 'bat'
@@ -13,6 +14,7 @@ brew 'htop'
 brew 'lazygit'
 # brew 'opentofu'
 brew 'mise'
+brew 'hashicorp/tap/packer'
 brew 'ripgrep'
 brew 'ruff'
 brew 'tmux'
