@@ -1,0 +1,8 @@
+# vi: ft=sh
+
+shell-integration = zsh
+theme = Catppuccin Mocha
+font-family = "MapleMono Nerd Font Mono"
+cursor-style = bar
+window-theme = ghostty
+gtk-title-hide-when-maximized = true
