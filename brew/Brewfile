@@ -23,4 +23,4 @@ brew 'uv'
 brew 'yazi'
 brew 'zoxide'
 
-cask 'copilot-cli'
+cask 'antigravity-ide'
