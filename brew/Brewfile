@@ -1,9 +1,11 @@
 # tap 'xo/xo'
 tap 'hashicorp/tap'
+tap 'charmbracelet/tap'
 
 # brew 'atuin'
 brew 'bat'
 # brew 'bitwarden-cli'
+brew 'charmbracelet/tap/crush'
 brew 'eza'
 brew 'fd'
 brew 'fzf'
@@ -22,5 +24,3 @@ brew 'tmux'
 brew 'uv'
 brew 'yazi'
 brew 'zoxide'
-
-cask 'antigravity-ide'
