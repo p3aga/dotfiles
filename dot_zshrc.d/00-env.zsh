@@ -15,3 +15,9 @@ fi
 if [[ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]]; then
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi
+
+if [[ ! -d "$HOME/.local/bin" ]]; then
+  mkdir -p "$HOME/.local/bin"
+fi
+
+export PATH="$HOME/.local/bin:$PATH"
