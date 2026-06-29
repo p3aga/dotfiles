@@ -1,8 +1,0 @@
-#!/bin/bash 
-
-# ptyxis.conf hash: {{ include "ptyxis/ptyxis.conf" | sha256sum }}
-
-{{ if not (or (stat "/.dockerenv") (stat "/run/.containerenv")) }}
-  echo "Loading ptyxis config"
-  dconf load /org/gnome/Ptyxis/ < "{{ .chezmoi.sourceDir }}/ptyxis/ptyxis.conf"
-{{ end }}
