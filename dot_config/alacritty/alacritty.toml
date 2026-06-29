@@ -1,0 +1,16 @@
+[general]
+import = [
+  "~/.config/alacritty/catppuccin-mocha.toml"
+]
+
+[window]
+dimensions = { columns = 80, lines = 22 }
+padding = { x = 4, y = 8 }
+decorations = "None"
+
+[font]
+normal = { family = "MapleMono Nerd Font Mono", style = "Regular" }
+size = 11
+
+[cursor]
+style = { shape = "Beam", blinking = "Off" }
