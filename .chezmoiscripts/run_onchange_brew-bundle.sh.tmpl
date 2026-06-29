@@ -5,6 +5,10 @@
 {{ if stat "/home/linuxbrew/.linuxbrew/bin/brew" }}
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
+  for tap in $(awk '/^tap[ \t]/ { gsub(/\047/, "", $2); print $2 }' {{ .chezmoi.sourceDir }}/brew/Brewfile); do
+    brew trust $tap
+  done
+
   brew update
   brew bundle --file="{{ .chezmoi.sourceDir }}/brew/Brewfile"
 {{ end }}
