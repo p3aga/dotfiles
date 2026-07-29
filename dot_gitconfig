@@ -1,0 +1,15 @@
+[user]
+	email = pedrohenrickqa@gmail.com
+	name = Pedro Henrick
+[init]
+	defaultBranch = main
+[credential]
+	helper = store
+[core]
+	pager = hunk pager
+[diff]
+	tool = hunk
+[difftool "hunk"]
+	cmd = hunk difftool \"$LOCAL\" \"$REMOTE\" \"$MERGED\"
+[difftool]
+	prompt = false
