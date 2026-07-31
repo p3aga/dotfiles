@@ -1,1 +1,2 @@
-~/.config/hunk
+.config/hunk
+.tmux*
