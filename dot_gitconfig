@@ -9,6 +9,8 @@
     pager = delta
 [interactive]
     diffFilter = delta --color-only
+[pager]
+  diff = "DELTA_FEATURES='side-by-side catppuccin-mocha' delta"
 [merge]
     conflictStyle = zdiff3
 [delta "catppuccin-mocha"]
@@ -45,4 +47,3 @@
   navigate = true
 	features = catppuccin-mocha
   line-numbers = true
-  side-by-side = true
