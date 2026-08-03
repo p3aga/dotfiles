@@ -1,9 +1,0 @@
-# vi: ft=sh
-
-shell-integration = zsh
-shell-integration-features = ssh-env, ssh-terminfo
-theme = Catppuccin Mocha
-font-family = "MapleMono Nerd Font Mono"
-cursor-style = bar
-window-theme = ghostty
-gtk-titlebar-hide-when-maximized = true
