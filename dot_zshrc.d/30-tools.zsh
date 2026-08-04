@@ -14,3 +14,7 @@ fi
 if command -v atuin >/dev/null 2>&1; then
   eval "$(atuin init zsh)"
 fi
+
+if command -v devbox >/dev/null 2>&1; then
+  eval "$(devbox completion zsh)"
+fi
