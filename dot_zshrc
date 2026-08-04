@@ -1,5 +1,3 @@
-# vim: ft=sh
-
 # Modular zsh config loader.
 #
 # Load order is controlled by numeric prefixes in dot_zshrc.d:
