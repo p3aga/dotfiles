@@ -1,0 +1,145 @@
+[bootstrap.users]
+henrick = { shell = "/bin/zsh" }
+elainne = { shell = "/bin/bash", create_home = true }
+
+[bootstrap.hooks.pre-packages]
+run = [
+  "sudo dnf install -y ffmpeg --allowerasing",
+  "sudo dnf install -y '@Multimedia' --setopt=install_weak_deps=False -x PackageKit-gstreamer-plugin",
+  """
+  sudo dnf install -y --nogpgcheck \\
+    https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \\
+    https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+  """,
+]
+
+# [[bootstrap.packages]]
+# "brew:herdr" = "latest"
+# "brew:lazygit" = "latest"
+# "brew:curlie" = "latest"
+# "brew:superfile" = "latest"
+# "brew:yazi" = "latest"
+
+[bootstrap.packages]
+# flatpaks
+"flatpak:com.anydesk.Anydesk" = "latest"
+"flatpak:com.bitwarden.desktop" = "latest"
+"flatpak:com.discordapp.Discord" = "latest"
+"flatpak:com.spotify.Client" = "latest"
+"flatpak:io.dbeaver.DBeaverCommunity" = "latest"
+"flatpak:io.ente.auth" = "latest"
+"flatpak:io.gitlab.adhami3310.Impression" = "latest"
+"flatpak:org.localsend.localsend_app" = "latest"
+"flatpak:org.mozilla.Thunderbird" = "latest"
+"flatpak:org.onlyoffice.desktopeditors" = "latest"
+"flatpak:org.qbittorrent.qBittorrent" = "latest"
+"flatpak:org.remmina.Remmina" = "latest"
+"flatpak:org.videolan.VLC" = "latest"
+# dnf packages
+"dnf:bat" = "latest"
+"dnf:btop" = "latest"
+"dnf:eza" = "latest"
+"dnf:fd-find" = "latest"
+"dnf:fzf" = "latest"
+"dnf:glow" = "latest"
+"dnf:git-delta" = "latest"
+"dnf:htop" = "latest"
+"dnf:atuin" = "latest"
+"dnf:ripgrep" = "latest"
+"dnf:just" = "latest"
+"dnf:ruff" = "latest"
+"dnf:uv" = "latest"
+"dnf:zoxide" = "latest"
+"dnf:tailscale" = "latest"
+"dnf:gnome-themes-extra" = "latest"
+"dnf:papirus-icon-theme" = "latest"
+"dnf:rsms-inter-fonts" = "latest"
+"dnf:libvirt" = "latest"
+"dnf:virt-manager" = "latest"
+"dnf:alacritty" = "latest"
+"dnf:dnf-plugins-core" = "latest"
+"dnf:docker-compose" = "latest"
+"dnf:gnome-tweaks" = "latest"
+"dnf:kitty" = "latest"
+"dnf:nautilus-python" = "latest"
+"dnf:plocate" = "latest"
+"dnf:python3-neovim" = "latest"
+"dnf:python3-pip" = "latest"
+"dnf:tree-sitter-cli" = "latest"
+"dnf:vagrant" = "latest"
+"dnf:vagrant-libvirt" = "latest"
+"dnf:wireguard-tools" = "latest"
+"dnf:zsh" = "latest"
+"dnf:gnome-boxes" = "absent"
+"dnf:gnome-connections" = "absent"
+"dnf:gnome-maps" = "absent"
+"dnf:gnome-tour" = "absent"
+"dnf:libreoffice-core" = "absent"
+"dnf:mediawriter" = "absent"
+"dnf:rhythmbox" = "absent"
+"dnf:yelp" = "absent"
+"dnf:ptyxis" = "absent"
+
+[bootstrap.services.tailscaled]
+state = "running"
+enabled = true
+
+[bootstrap.services.libvirtd]
+state = "running"
+enabled = true
+
+[bootstrap.services.sshd]
+state = "running"
+enabled = true
+
+[bootstrap.services.abrtd]
+state = "stopped"
+enabled = false
+
+[bootstrap.files."/usr/share/backgrounds/custom/custom-d.jpg"]
+source = "./gnome/wallpaper/custom-d.jpg"
+owner = "root"
+group = "root"
+mode = "0644"
+
+[bootstrap.files."/usr/share/backgrounds/custom/custom-l.jpg"]
+source = "./gnome/wallpaper/custom-l.jpg"
+owner = "root"
+group = "root"
+mode = "0644"
+
+[bootstrap.files."/usr/share/backgrounds/custom/custom.xml"]
+source = "./gnome/wallpaper/custom.xml"
+owner = "root"
+group = "root"
+mode = "0644"
+
+[bootstrap.files."/etc/dconf/db/local.d/97-custom-extensions"]
+source = "./gnome/97-custom-extensions.conf"
+owner = "root"
+group = "root"
+mode = "0644"
+
+[bootstrap.files."/etc/dconf/db/local.d/98-custom-wallpaper"]
+source = "./gnome/98-custom-wallpaper.conf"
+owner = "root"
+group = "root"
+mode = "0644"
+
+[bootstrap.files."/etc/dconf/db/local.d/99-custom-settings"]
+source = "./gnome/99-custom-settings.conf"
+owner = "root"
+group = "root"
+mode = "0644"
+
+[bootstrap.hooks.post-files]
+run = [
+  "sudo sed -i '/^# firewall_backend = \"nftables\"$/s/^# //' /etc/libvirt/network.conf",
+  "dconf reset /org/gnome/desktop/background/picture-uri",
+  "dconf reset /org/gnome/desktop/background/picture-uri-dark",
+  "dconf reset /org/gnome/shell/enabled-extensions",
+  "dconf update",
+]
+
+[bootstrap.repos]
+"~/.config/nvim" = { url = "https://github.com/p3aga/nvim-config.git" }
