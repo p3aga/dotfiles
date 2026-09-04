@@ -1,16 +1,20 @@
+[bootstrap.groups]
+elainne = {}
+henrick = {}
+
 [bootstrap.users]
-henrick = { shell = "/bin/zsh" }
-elainne = { shell = "/bin/bash", create_home = true }
+henrick = { group = "henrick", shell = "/bin/zsh", create_home = true }
+elainne = { group = "elainne", shell = "/bin/bash", create_home = true }
 
 [bootstrap.hooks.pre-packages]
 run = [
-  "sudo dnf install -y ffmpeg --allowerasing",
-  "sudo dnf install -y '@Multimedia' --setopt=install_weak_deps=False -x PackageKit-gstreamer-plugin",
   """
   sudo dnf install -y --nogpgcheck \\
     https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \\
     https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
   """,
+  "sudo dnf install -y ffmpeg --allowerasing",
+  "sudo dnf install -y '@Multimedia' --setopt=install_weak_deps=False -x PackageKit-gstreamer-plugin",
 ]
 
 # [[bootstrap.packages]]
@@ -96,32 +100,8 @@ enabled = true
 state = "stopped"
 enabled = false
 
-[bootstrap.files."/usr/share/backgrounds/custom/custom-d.jpg"]
-source = "./gnome/wallpaper/custom-d.jpg"
-owner = "root"
-group = "root"
-mode = "0644"
-
-[bootstrap.files."/usr/share/backgrounds/custom/custom-l.jpg"]
-source = "./gnome/wallpaper/custom-l.jpg"
-owner = "root"
-group = "root"
-mode = "0644"
-
-[bootstrap.files."/usr/share/backgrounds/custom/custom.xml"]
-source = "./gnome/wallpaper/custom.xml"
-owner = "root"
-group = "root"
-mode = "0644"
-
-[bootstrap.files."/etc/dconf/db/local.d/97-custom-extensions"]
-source = "./gnome/97-custom-extensions.conf"
-owner = "root"
-group = "root"
-mode = "0644"
-
-[bootstrap.files."/etc/dconf/db/local.d/98-custom-wallpaper"]
-source = "./gnome/98-custom-wallpaper.conf"
+[bootstrap.files."/etc/dconf/db/local.d/98-custom-extensions"]
+source = "./gnome/98-custom-extensions.conf"
 owner = "root"
 group = "root"
 mode = "0644"
