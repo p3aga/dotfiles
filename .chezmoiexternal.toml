@@ -6,4 +6,4 @@
 [notes]
   type        = "git-repo"
   url         = "https://github.com/p3aga/notes.git"
-  targetPath  = ".notes"
+  targetPath  = "Obsidian/notes"
