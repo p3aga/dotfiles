@@ -3,6 +3,8 @@ atuin = "latest"
 herdr = "latest"
 uv = "latest"
 "npm:neovim" = "latest"
+pipx = "latest"
+ansible = { version = "latest", pipx_args = "--include-deps", uvx = false }
 
 [settings.ruby]
 compile = false
