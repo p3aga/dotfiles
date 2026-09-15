@@ -15,7 +15,6 @@ DOWNLOAD_URL="https://storage.googleapis.com/antigravity-public/antigravity-hub/
 
 echo "==> Verificando instalação do $APP_DISPLAY..."
 
-# Evita reinstalação caso o binário principal já exista no destino
 if [ -x "$DEST/$BINARY" ]; then
     echo "==> $APP_DISPLAY já está instalado em $DEST."
     exit 0
@@ -28,7 +27,6 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# 1. Download do pacote
 echo "==> Baixando $APP_DISPLAY..."
 ARCHIVE="$WORKDIR/Antigravity.tar.gz"
 
@@ -37,11 +35,10 @@ if command -v curl >/dev/null 2>&1; then
 elif command -v wget >/dev/null 2>&1; then
     wget -q --show-progress "$DOWNLOAD_URL" -O "$ARCHIVE"
 else
-    echo "Erro: curl ou wget não encontrados para download."
+    echo "Erro: curl ou wget não encontrados para efetuar o download."
     exit 1
 fi
 
-# 2. Extração dos arquivos
 echo "==> Extraindo arquivos..."
 EXTRACT_DIR="$WORKDIR/extracted"
 mkdir -p "$EXTRACT_DIR"
@@ -53,33 +50,28 @@ if [ -z "$BIN_FOUND" ]; then
     exit 1
 fi
 SRC="$(dirname "$BIN_FOUND")"
+echo "src: $SRC"
 
-# 3. Extrair icon.png do app.asar
 echo "==> Extraindo ícone do aplicativo..."
 ICON_TMP="$WORKDIR/icon.png"
-if [ -f "$SRC/resources/app.asar" ]; then
-    python3 - "$SRC/resources/app.asar" "$ICON_TMP" <<'PY'
-import json, struct, sys
-asar, out = sys.argv[1], sys.argv[2]
-try:
-    with open(asar, "rb") as f:
-        f.read(4)
-        struct.unpack("<I", f.read(4))
-        struct.unpack("<I", f.read(4))
-        hdr_len = struct.unpack("<I", f.read(4))[0]
-        hdr = f.read(hdr_len)
-        data_start = f.tell()
-        j = json.loads(hdr.split(b"\x00", 1)[0].decode("utf-8", "ignore"))
-    info = j["files"]["icon.png"]
-    with open(asar, "rb") as f:
-        f.seek(data_start + int(info["offset"]))
-        open(out, "wb").write(f.read(int(info["size"])))
-except Exception:
-    sys.exit(1)
-PY
+
+FOUND_ICON="$(find "$SRC" -maxdepth 3 -type f \( -iname "*antigravity*.png" -o -iname "icon.png" \) 2>/dev/null | head -n 1)"
+
+if [ -n "$FOUND_ICON" ] && [ -s "$FOUND_ICON" ]; then
+    echo "    Usando ícone encontrado: $FOUND_ICON"
+    cp "$FOUND_ICON" "$ICON_TMP"
+elif [ -f "$SRC/resources/app.asar" ] && command -v npx >/dev/null 2>&1; then
+    echo "    Extraindo do app.asar via npx asar..."
+    (
+        cd "$WORKDIR"
+        npx --yes asar extract-file "$SRC/resources/app.asar" icon.png 2>/dev/null || \
+        npx --yes asar extract-file "$SRC/resources/app.asar" assets/icon.png 2>/dev/null || true
+    )
+    if [ -s "$WORKDIR/assets/icon.png" ]; then
+        mv "$WORKDIR/assets/icon.png" "$ICON_TMP"
+    fi
 fi
 
-# 4. Instalar em /opt/Antigravity
 echo "==> Instalando em $DEST..."
 sudo mkdir -p "$(dirname "$ICON_DEST")" "$(dirname "$DESKTOP")" "$(dirname "$BIN_LINK")"
 
@@ -91,14 +83,15 @@ sudo chown -R root:root "$DEST"
 sudo chmod -R u=rwX,go=rX "$DEST"
 sudo chmod 755 "$DEST/$BINARY"
 
-# 5. Instalar ícone
-if [ -f "$ICON_TMP" ]; then
+if [ -s "$ICON_TMP" ]; then
+    echo "==> Instalando arquivo de ícone em $ICON_DEST..."
     sudo install -Dm644 "$ICON_TMP" "$ICON_DEST"
     sudo gtk-update-icon-cache -f -t /usr/share/icons/hicolor 2>/dev/null || true
+else
+    echo "    [Aviso] Nenhum ícone válido pôde ser extraído."
 fi
 
-# 6. Criar lançador .desktop
-echo "==> Criando lançador .desktop..."
+echo "==> Criando lançador no menu do sistema..."
 sudo tee "$DESKTOP" >/dev/null <<EOF
 [Desktop Entry]
 Name=$APP_DISPLAY
@@ -113,14 +106,13 @@ EOF
 sudo chmod 644 "$DESKTOP"
 sudo update-desktop-database /usr/share/applications 2>/dev/null || true
 
-# 7. Criar link simbólico no PATH
+echo "==> Criando link simbólico em $BIN_LINK..."
 sudo ln -sf "$DEST/$BINARY" "$BIN_LINK"
 
-# 8. Restaurar contextos SELinux
 if command -v restorecon >/dev/null 2>&1; then
     echo "==> Aplicando contextos SELinux..."
     sudo restorecon -RF "$DEST" "$ICON_DEST" "$DESKTOP" "$BIN_LINK" 2>/dev/null || true
 fi
 
-echo "✔ $APP_DISPLAY instalado com sucesso!"
+echo "✔ $APP_DISPLAY instalado com sucesso em $DEST"
 {{ end -}}
