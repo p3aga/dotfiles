@@ -12,7 +12,6 @@ remove = [
 [dnf]
 install = [
   "alacritty",
-  "atuin",
   "btop",
   "cascadia-code-nf-fonts",
   "lazygit",
@@ -53,6 +52,7 @@ install = [
   "zsh"
 ]
 remove = [
+  "atuin",
   "gnome-boxes",
   "gnome-connections",
   "gnome-maps",

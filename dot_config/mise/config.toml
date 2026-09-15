@@ -1,4 +1,5 @@
 [tools]
+atuin = "latest"
 herdr = "latest"
 uv = "latest"
 "npm:neovim" = "latest"
