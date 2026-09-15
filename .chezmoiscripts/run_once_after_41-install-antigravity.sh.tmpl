@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+
+{{ if eq .chezmoi.osRelease.id "fedora" -}}
+set -euo pipefail
+
+VERSION="2.13.0-6362815968182272"
+APP_NAME="antigravity"
+APP_DISPLAY="Antigravity"
+BINARY="antigravity"
+DEST="/opt/Antigravity"
+ICON_DEST="/usr/share/icons/hicolor/512x512/apps/$APP_NAME.png"
+DESKTOP="/usr/share/applications/$APP_NAME.desktop"
+BIN_LINK="/usr/local/bin/$APP_NAME"
+DOWNLOAD_URL="https://storage.googleapis.com/antigravity-public/antigravity-hub/$VERSION/linux-x64/Antigravity.tar.gz"
+
+echo "==> Verificando instalação do $APP_DISPLAY..."
+
+# Evita reinstalação caso o binário principal já exista no destino
+if [ -x "$DEST/$BINARY" ]; then
+    echo "==> $APP_DISPLAY já está instalado em $DEST."
+    exit 0
+fi
+
+# Diretório temporário com limpeza garantida ao sair
+WORKDIR="$(mktemp -d --suffix=-antigravity-install)"
+cleanup() {
+    rm -rf "$WORKDIR"
+}
+trap cleanup EXIT
+
+# 1. Download do pacote
+echo "==> Baixando $APP_DISPLAY..."
+ARCHIVE="$WORKDIR/Antigravity.tar.gz"
+
+if command -v curl >/dev/null 2>&1; then
+    curl -fSL --progress-bar "$DOWNLOAD_URL" -o "$ARCHIVE"
+elif command -v wget >/dev/null 2>&1; then
+    wget -q --show-progress "$DOWNLOAD_URL" -O "$ARCHIVE"
+else
+    echo "Erro: curl ou wget não encontrados para download."
+    exit 1
+fi
+
+# 2. Extração dos arquivos
+echo "==> Extraindo arquivos..."
+EXTRACT_DIR="$WORKDIR/extracted"
+mkdir -p "$EXTRACT_DIR"
+tar -xzf "$ARCHIVE" -C "$EXTRACT_DIR"
+
+BIN_FOUND="$(find "$EXTRACT_DIR" -maxdepth 3 -type f -name "$BINARY" -perm -111 | head -n 1)"
+if [ -z "$BIN_FOUND" ]; then
+    echo "Erro: O executável '$BINARY' não foi encontrado no arquivo extraído."
+    exit 1
+fi
+SRC="$(dirname "$BIN_FOUND")"
+
+# 3. Extrair icon.png do app.asar
+echo "==> Extraindo ícone do aplicativo..."
+ICON_TMP="$WORKDIR/icon.png"
+if [ -f "$SRC/resources/app.asar" ]; then
+    python3 - "$SRC/resources/app.asar" "$ICON_TMP" <<'PY'
+import json, struct, sys
+asar, out = sys.argv[1], sys.argv[2]
+try:
+    with open(asar, "rb") as f:
+        f.read(4)
+        struct.unpack("<I", f.read(4))
+        struct.unpack("<I", f.read(4))
+        hdr_len = struct.unpack("<I", f.read(4))[0]
+        hdr = f.read(hdr_len)
+        data_start = f.tell()
+        j = json.loads(hdr.split(b"\x00", 1)[0].decode("utf-8", "ignore"))
+    info = j["files"]["icon.png"]
+    with open(asar, "rb") as f:
+        f.seek(data_start + int(info["offset"]))
+        open(out, "wb").write(f.read(int(info["size"])))
+except Exception:
+    sys.exit(1)
+PY
+fi
+
+# 4. Instalar em /opt/Antigravity
+echo "==> Instalando em $DEST..."
+sudo mkdir -p "$(dirname "$ICON_DEST")" "$(dirname "$DESKTOP")" "$(dirname "$BIN_LINK")"
+
+sudo rm -rf "$DEST"
+sudo mkdir -p "$DEST"
+sudo cp -a "$SRC/." "$DEST/"
+
+sudo chown -R root:root "$DEST"
+sudo chmod -R u=rwX,go=rX "$DEST"
+sudo chmod 755 "$DEST/$BINARY"
+
+# 5. Instalar ícone
+if [ -f "$ICON_TMP" ]; then
+    sudo install -Dm644 "$ICON_TMP" "$ICON_DEST"
+    sudo gtk-update-icon-cache -f -t /usr/share/icons/hicolor 2>/dev/null || true
+fi
+
+# 6. Criar lançador .desktop
+echo "==> Criando lançador .desktop..."
+sudo tee "$DESKTOP" >/dev/null <<EOF
+[Desktop Entry]
+Name=$APP_DISPLAY
+Comment=Antigravity agent control surface
+Exec="$DEST/$BINARY" %U
+Icon=$APP_NAME
+Terminal=false
+Type=Application
+Categories=Development;IDE;
+StartupWMClass=$APP_NAME
+EOF
+sudo chmod 644 "$DESKTOP"
+sudo update-desktop-database /usr/share/applications 2>/dev/null || true
+
+# 7. Criar link simbólico no PATH
+sudo ln -sf "$DEST/$BINARY" "$BIN_LINK"
+
+# 8. Restaurar contextos SELinux
+if command -v restorecon >/dev/null 2>&1; then
+    echo "==> Aplicando contextos SELinux..."
+    sudo restorecon -RF "$DEST" "$ICON_DEST" "$DESKTOP" "$BIN_LINK" 2>/dev/null || true
+fi
+
+echo "✔ $APP_DISPLAY instalado com sucesso!"
+{{ end -}}
