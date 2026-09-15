@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+{{ if eq .chezmoi.osRelease.id "fedora" -}}
+set -euo pipefail
+
+echo "==> Configurando tema de ícones Papirus..."
+
+if ! command -v papirus-folders &>/dev/null; then
+    echo "==> Instalando papirus-folders..."
+    wget -qO- https://git.io/papirus-folders-install | sh
+fi
+
+if command -v papirus-folders &>/dev/null; then
+    CURRENT_COLOR=$(papirus-folders -l --theme Papirus 2>/dev/null | awk -F'>' '/^ >/ {gsub(/[[:space:]]+/, "", $2); print $2}' || true)
+    if [ "$CURRENT_COLOR" != "adwaita" ]; then
+        echo "==> Aplicando cor 'adwaita' no tema Papirus..."
+        sudo papirus-folders -C adwaita --theme Papirus
+    else
+        echo "==> Tema Papirus já está na cor 'adwaita'."
+    fi
+fi
+
+echo "==> Configurando ícones específicos das pastas de usuário..."
+
+declare -A FOLDERS=(
+    ["${HOME}/Projetos"]="/usr/share/icons/Papirus/24x24/places/folder-adwaita-projects.svg"
+    ["${HOME}/Obsidian"]="/usr/share/icons/Papirus/24x24/places/folder-adwaita-obsidian.svg"
+)
+
+for folder in "${!FOLDERS[@]}"; do
+    icon="${FOLDERS[$folder]}"
+    mkdir -p "${folder}"
+
+    if [ -f "${icon}" ]; then
+        gio set "${folder}" metadata::custom-icon "file://${icon}" 2>/dev/null || true
+        gio set "${folder}" metadata::icon "file://${icon}" 2>/dev/null || true
+    else
+        echo "    [Aviso] Ícone não encontrado: ${icon}"
+    fi
+done
+
+if command -v gtk-update-icon-cache &>/dev/null; then
+    gtk-update-icon-cache -f -t /usr/share/icons/Papirus 2>/dev/null || true
+fi
+
+if pgrep -x "nautilus" &>/dev/null; then
+    nautilus -q || true
+fi
+
+echo "==> Configuração de ícones concluída com sucesso!"
+{{ end -}}
