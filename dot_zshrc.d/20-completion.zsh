@@ -1,4 +1,6 @@
 # Completion system and completion style tuning.
+fpath=(~/.zshrc.d/completions $fpath)
+
 autoload -Uz compinit && compinit
 
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
