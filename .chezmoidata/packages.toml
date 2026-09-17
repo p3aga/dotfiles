@@ -13,7 +13,6 @@ remove = [
 install = [
   "alacritty",
   "btop",
-  "cascadia-code-nf-fonts",
   "distrobox",
   "dnf-plugins-core",
   "docker-compose",
@@ -54,6 +53,7 @@ install = [
 ]
 remove = [
   "atuin",
+  "cascadia-code-nf-fonts",
   "gnome-boxes",
   "gnome-connections",
   "gnome-maps",
