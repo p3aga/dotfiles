@@ -9,7 +9,7 @@ padding = { x = 4, y = 8 }
 decorations = "None"
 
 [font]
-normal = { family = "Cascadia Code NF", style = "Regular" }
+normal = { family = "JetBrainsMonoNL NFM", style = "SemiBold" }
 size = 11
 
 [cursor]
