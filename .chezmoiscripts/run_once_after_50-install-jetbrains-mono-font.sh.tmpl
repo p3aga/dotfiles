@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+{{ if eq .chezmoi.osRelease.id "fedora" -}}
+set -euo pipefail
+
+DEST_DIR="/usr/share/fonts/jetbrains-mono-nerd-font"
+DOWNLOAD_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/JetBrainsMono.zip"
+
+echo "==> Verificando a fonte JetBrains Mono Nerd Font..."
+
+# Idempotência: encerra se o diretório já contiver arquivos .ttf instalados
+if [ -d "$DEST_DIR" ] && compgen -G "$DEST_DIR/*.ttf" >/dev/null; then
+    echo "==> JetBrains Mono Nerd Font já está instalada em $DEST_DIR."
+    exit 0
+fi
+
+# Diretório temporário com limpeza garantida ao sair
+WORKDIR="$(mktemp -d --suffix=-jetbrains-mono-nf)"
+cleanup() {
+    rm -rf "$WORKDIR"
+}
+trap cleanup EXIT
+
+# 1. Download do arquivo ZIP
+echo "==> Baixando JetBrains Mono Nerd Font..."
+ZIP_FILE="$WORKDIR/JetBrainsMono.zip"
+
+if command -v curl >/dev/null 2>&1; then
+    curl -fSL "$DOWNLOAD_URL" -o "$ZIP_FILE"
+elif command -v wget >/dev/null 2>&1; then
+    wget -q --show-progress "$DOWNLOAD_URL" -O "$ZIP_FILE"
+else
+    echo "Erro: curl ou wget não encontrados para efetuar o download."
+    exit 1
+fi
+
+# 2. Extração para diretório temporário
+echo "==> Extraindo arquivos..."
+EXTRACT_DIR="$WORKDIR/extracted"
+mkdir -p "$EXTRACT_DIR"
+unzip -q "$ZIP_FILE" -d "$EXTRACT_DIR"
+
+# 3. Copiar os arquivos .ttf da extração para o destino
+echo "==> Instalando fontes TTF em $DEST_DIR..."
+sudo mkdir -p "$DEST_DIR"
+find "$EXTRACT_DIR" -maxdepth 1 -type f -name "*.ttf" -exec sudo cp {} "$DEST_DIR/" \;
+
+# 4. Ajustar permissões e atualizar cache de fontes
+echo "==> Ajustando permissões e atualizando cache de fontes..."
+sudo chmod 644 "$DEST_DIR"/*.ttf
+if command -v restorecon >/dev/null 2>&1; then
+    sudo restorecon -RF "$DEST_DIR" 2>/dev/null || true
+fi
+sudo fc-cache -f "$DEST_DIR"
+
+echo "✔ JetBrains Mono Nerd Font instalada com sucesso!"
+{{ end -}}
