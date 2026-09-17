@@ -7,7 +7,7 @@ config.initial_cols = 80
 config.initial_rows = 24
 
 -- font
-config.font = wezterm.font 'Cascadia Code NF'
+config.font = wezterm.font('JetBrainsMonoNL NFM', { weight = 'DemiBold' })
 config.font_size = 11
 
 -- appearance
