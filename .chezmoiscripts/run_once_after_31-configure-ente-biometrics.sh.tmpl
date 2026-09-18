@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+{{ if eq .chezmoi.osRelease.id "fedora" -}}
+set -euo pipefail
+
+POLICY_URL="https://raw.githubusercontent.com/ente/ente/main/mobile/apps/auth/assets/polkit/com.ente.auth.policy"
+POLICY_SHA256="efba0409db9a0a53196fa8a7c9f4d4e874234b48287eb5242cf399f466e4c695"
+
+# Trata sistemas imutáveis (ex: Fedora Silverblue/Kinoite) vs tradicionais (Fedora Workstation)
+if findmnt -n -o OPTIONS --target /usr/share/polkit-1/actions 2>/dev/null | grep -qw ro; then
+    INSTALL_PATH="/etc/polkit-1/actions/com.ente.auth.policy"
+else
+    INSTALL_PATH="/usr/share/polkit-1/actions/com.ente.auth.policy"
+fi
+
+echo "==> Configurando política do Polkit para o Ente Auth (biometria)..."
+
+# Garante o diretório de destino
+sudo mkdir -p "$(dirname "$INSTALL_PATH")"
+
+POLICY_TMP="$(mktemp)"
+trap 'rm -f "$POLICY_TMP"' EXIT
+
+# 1. Download do arquivo de política
+if command -v curl >/dev/null 2>&1; then
+    curl -fsSL "$POLICY_URL" -o "$POLICY_TMP"
+elif command -v wget >/dev/null 2>&1; then
+    wget -q -O "$POLICY_TMP" "$POLICY_URL"
+else
+    echo "Erro: curl ou wget não encontrados."
+    exit 1
+fi
+
+# 2. Verificação de integridade (SHA256)
+if ! printf "%s  %s\n" "$POLICY_SHA256" "$POLICY_TMP" | sha256sum -c -; then
+    echo "Erro: Checksum do arquivo de política não confere. Abortando instalação."
+    exit 1
+fi
+
+# 3. Instala com propriedade root:root e permissão 644
+sudo install -D -o root -g root -m 0644 "$POLICY_TMP" "$INSTALL_PATH"
+
+# 4. Restaura contexto SELinux
+if command -v restorecon >/dev/null 2>&1; then
+    sudo restorecon -v "$INSTALL_PATH" 2>/dev/null || true
+fi
+
+# 5. Validação com o Polkit
+sleep 1
+if command -v pkaction >/dev/null 2>&1; then
+    pkaction --action-id com.ente.auth.unlock --verbose || true
+fi
+
+echo "==> Política de biometria do Ente Auth configurada com sucesso!"
+{{ end -}}
