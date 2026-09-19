@@ -12,6 +12,7 @@ remove = [
 [dnf]
 install = [
   "alacritty",
+  "ansible",
   "btop",
   "distrobox",
   "dnf-plugins-core",

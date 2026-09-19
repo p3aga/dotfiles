@@ -7,6 +7,10 @@ if command -v mise &>/dev/null; then
     echo "==> Atualizando e instalando ferramentas declaradas no mise..."
     mise install -y
     echo "==> Ferramentas do mise instaladas com sucesso!"
+
+    echo "==> Limpando ferramentas do mise não utilizadas..."
+    mise prune -y
+    echo "==> Ferramentas não usadas do mise removidas com sucesso!"
 else
     echo "==> Aviso: mise não encontrado no PATH. Pulando instalação de ferramentas."
 fi
