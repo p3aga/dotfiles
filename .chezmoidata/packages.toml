@@ -73,6 +73,7 @@ install = [
   "com.github.tchx84.Flatseal",
   "com.mattjakeman.ExtensionManager",
   "com.spotify.Client",
+  "com.usebruno.Bruno",
   "io.dbeaver.DBeaverCommunity",
   "io.ente.auth",
   "io.gitlab.adhami3310.Impression",
