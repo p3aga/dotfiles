@@ -1,11 +1,11 @@
 [copr]
 enable = [
   "wezfurlong/wezterm-nightly",
-  "lihaohong/yazi",
-  "dejan/lazygit",
   "jdxcode/mise"
 ]
 remove = [
+  "dejan/lazygit",
+  "lihaohong/yazi",
   "phracek/PyCharm"
 ]
 
@@ -30,7 +30,6 @@ install = [
   "helix",
   "htop",
   "intel-media-driver",
-  "lazygit",
   "libvirt",
   "mise",
   "nodejs",
@@ -48,7 +47,6 @@ install = [
   "virt-manager",
   "wezterm",
   "wireguard-tools",
-  "yazi",
   "zoxide",
   "zsh"
 ]
@@ -59,8 +57,10 @@ remove = [
   "gnome-connections",
   "gnome-maps",
   "gnome-tour",
+  "lazygit",
   "mediawriter",
   "rhythmbox",
+  "yazi",
   "yelp",
   "ptyxis"
 ]
