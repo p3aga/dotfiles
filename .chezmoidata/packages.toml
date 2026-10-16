@@ -14,6 +14,7 @@ install = [
   "alacritty",
   "ansible",
   "btop",
+  "buildah",
   "distrobox",
   "dnf-plugins-core",
   "docker-compose",
