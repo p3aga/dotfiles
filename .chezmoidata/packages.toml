@@ -29,6 +29,7 @@ install = [
   "google-chrome-stable",
   "helix",
   "htop",
+  "httpie",
   "intel-media-driver",
   "libvirt",
   "mise",
@@ -39,7 +40,6 @@ install = [
   "python3-pip",
   "ripgrep",
   "rsms-inter-fonts",
-  "steam",
   "tailscale",
   "tree-sitter-cli",
   "vagrant",
@@ -53,16 +53,16 @@ install = [
 remove = [
   "atuin",
   "cascadia-code-nf-fonts",
-  "gnome-boxes",
-  "gnome-connections",
-  "gnome-maps",
-  "gnome-tour",
+  "gnome-boxes", # system
+  "gnome-connections", # system
+  "gnome-maps", # system
+  "gnome-tour", # system
   "lazygit",
-  "mediawriter",
-  "rhythmbox",
+  "mediawriter", # system
+  "rhythmbox", # system
   "yazi",
-  "yelp",
-  "ptyxis"
+  "yelp", # system
+  "ptyxis" # system
 ]
 
 [flatpak]
@@ -72,17 +72,22 @@ install = [
   "com.discordapp.Discord",
   "com.github.tchx84.Flatseal",
   "com.mattjakeman.ExtensionManager",
+  "com.ranfdev.DistroShelf",
   "com.spotify.Client",
   "com.usebruno.Bruno",
   "io.dbeaver.DBeaverCommunity",
   "io.ente.auth",
   "io.gitlab.adhami3310.Impression",
   "md.obsidian.Obsidian",
+  "net.donnybeelo.Convey",
   "org.gimp.GIMP",
   "org.localsend.localsend_app",
-  "org.mozilla.thunderbird_esr",
   "org.onlyoffice.desktopeditors",
   "org.qbittorrent.qBittorrent",
   "org.remmina.Remmina",
   "org.videolan.VLC"
+]
+
+remove = [
+  "org.mozilla.thunderbird_esr",
 ]

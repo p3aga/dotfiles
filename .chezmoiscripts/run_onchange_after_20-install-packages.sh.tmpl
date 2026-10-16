@@ -22,19 +22,13 @@ sudo dnf copr enable -y {{ . }}
 # 2. Remover pacotes DNF indesejados
 {{- if .dnf.remove }}
 echo "==> Removendo pacotes DNF..."
-sudo dnf remove -y \
-  {{- range .dnf.remove }}
-  {{ . }} \
-  {{- end }}
+sudo dnf remove -y {{ .dnf.remove | join " " }}
 {{- end }}
 
 # 3. Instalar pacotes via DNF
 {{- if .dnf.install }}
 echo "==> Instalando pacotes via DNF..."
-sudo dnf install -y \
-  {{- range .dnf.install }}
-  {{ . }} \
-  {{- end }}
+sudo dnf install -y {{.dnf.install | join " " }}
 {{- end }}
 
 # 4. Configurar Flathub e instalar Flatpaks
@@ -42,11 +36,16 @@ sudo dnf install -y \
 echo "==> Configurando Flatpak e instalando aplicativos..."
 flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
-{{- if .flatpak.install }}
-sudo flatpak install -y flathub \
-  {{- range .flatpak.install }}
-  {{ . }} \
+{{- if .flatpak.remove }}
+  {{- range .flatpak.remove }}
+echo "==> Removendo Flatpak {{ . }}"
+sudo flatpak remove -y --delete-data {{ . }} || true
   {{- end }}
+{{- end }}
+
+{{- if .flatpak.install }}
+echo "==> Instalando pacotes Flatpaks..."
+sudo flatpak install -y flathub {{ .flatpak.install | join " " }}
 {{- end }}
 {{- end }}
 
