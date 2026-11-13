@@ -13,6 +13,7 @@ uv = "latest"
 yamllint = "latest"
 yazi = "latest"
 "npm:neovim" = "latest"
+yamlfmt = "latest"
 
 [settings.ruby]
 compile = false

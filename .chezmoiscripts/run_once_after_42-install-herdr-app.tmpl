@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+
+{{ if eq .chezmoi.osRelease.id "fedora" -}}
+set -euo pipefail
+
+RELEASES_URL="https://releases.herdr.dev"
+APP_NAME="herdr-app"
+APP_DISPLAY="Herdr"
+BINARY="herdr-app"
+DEST="/opt/Herdr"
+ICON_DEST="/usr/share/icons/hicolor/scalable/apps/$APP_NAME.svg"
+DESKTOP="/usr/share/applications/$APP_NAME.desktop"
+BIN_DIR="/usr/local/bin"
+BIN_LINK="$BIN_DIR/$APP_NAME"
+
+# Detecta arquitetura no formato esperado pelo manifesto do Herdr
+case "{{ .chezmoi.arch }}" in
+    amd64) ARCH="x86_64" ;;
+    arm64) ARCH="aarch64" ;;
+    *)
+        echo "Erro: Arquitetura '{{ .chezmoi.arch }}' não suportada."
+        exit 1
+        ;;
+esac
+TARGET="linux-$ARCH"
+
+echo "==> Verificando instalação do $APP_DISPLAY..."
+
+if [ -x "$DEST/$BINARY" ]; then
+    echo "==> $APP_DISPLAY já está instalado em $DEST."
+    exit 0
+fi
+
+for cmd in curl tar sha256sum; do
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+        echo "Erro: comando '$cmd' não encontrado."
+        exit 1
+    fi
+done
+
+# Diretório temporário com limpeza garantida ao sair
+WORKDIR="$(mktemp -d --suffix=-herdr-install)"
+cleanup() {
+    rm -rf "$WORKDIR"
+}
+trap cleanup EXIT
+
+echo "==> Consultando última versão de $APP_DISPLAY ($TARGET)..."
+MANIFEST="$WORKDIR/latest.json"
+curl -fsSL "$RELEASES_URL/app/latest.json" -o "$MANIFEST"
+
+ENTRY="$(tr -d '\n ' < "$MANIFEST" | sed -n "s/.*\"$TARGET\":{\([^}]*\)}.*/\1/p")"
+DOWNLOAD_URL="$(printf '%s' "$ENTRY" | sed -n 's/.*"url":"\([^"]*\)".*/\1/p')"
+EXPECTED_SHA256="$(printf '%s' "$ENTRY" | sed -n 's/.*"sha256":"\([^"]*\)".*/\1/p')"
+VERSION="$(tr -d '\n ' < "$MANIFEST" | sed -n 's/^{"version":"\([^"]*\)".*/\1/p')"
+
+if [ -z "$DOWNLOAD_URL" ] || [ -z "$EXPECTED_SHA256" ]; then
+    echo "Erro: Nenhuma build encontrada no manifesto para $TARGET."
+    exit 1
+fi
+
+case "$DOWNLOAD_URL" in
+    *[?#]*) FINAL_URL="$DOWNLOAD_URL" ;;
+    "$RELEASES_URL"/*) FINAL_URL="$DOWNLOAD_URL?src=install" ;;
+    *) FINAL_URL="$DOWNLOAD_URL" ;;
+esac
+
+echo "==> Baixando $APP_DISPLAY ${VERSION:-}..."
+ARCHIVE="$WORKDIR/herdr-app.tar.gz"
+curl -fSL --progress-bar "$FINAL_URL" -o "$ARCHIVE"
+
+echo "==> Validando checksum SHA-256..."
+ACTUAL_SHA256="$(sha256sum "$ARCHIVE" | cut -d' ' -f1)"
+if [ "$ACTUAL_SHA256" != "$EXPECTED_SHA256" ]; then
+    echo "Erro: Checksum inválido (esperado: $EXPECTED_SHA256, obtido: $ACTUAL_SHA256)."
+    exit 1
+fi
+
+echo "==> Extraindo arquivos..."
+EXTRACT_DIR="$WORKDIR/extracted"
+mkdir -p "$EXTRACT_DIR"
+tar -xzf "$ARCHIVE" -C "$EXTRACT_DIR"
+
+BIN_FOUND="$(find "$EXTRACT_DIR" -maxdepth 3 -type f -name "$BINARY" -perm -111 | head -n 1)"
+if [ -z "$BIN_FOUND" ]; then
+    echo "Erro: O executável '$BINARY' não foi encontrado no arquivo extraído."
+    exit 1
+fi
+SRC="$(dirname "$BIN_FOUND")"
+
+echo "==> Instalando em $DEST..."
+sudo mkdir -p "$(dirname "$ICON_DEST")" "$(dirname "$DESKTOP")" "$BIN_DIR"
+
+sudo rm -rf "$DEST"
+sudo mkdir -p "$DEST"
+sudo cp -a "$SRC/." "$DEST/"
+
+sudo chown -R root:root "$DEST"
+sudo chmod -R u=rwX,go=rX "$DEST"
+sudo chmod 755 "$DEST/$BINARY"
+
+if [ -s "$DEST/herdr-app.svg" ]; then
+    echo "==> Instalando ícone SVG em $ICON_DEST..."
+    sudo install -Dm644 "$DEST/herdr-app.svg" "$ICON_DEST"
+    sudo gtk-update-icon-cache -f -t /usr/share/icons/hicolor 2>/dev/null || true
+else
+    echo "    [Aviso] Ícone herdr-app.svg não encontrado."
+fi
+
+echo "==> Criando lançador no menu do sistema..."
+sudo tee "$DESKTOP" >/dev/null <<EOF
+[Desktop Entry]
+Type=Application
+Name=$APP_DISPLAY
+Comment=Terminals and coding agents that keep running
+Exec=$BIN_LINK
+Icon=$APP_NAME
+Terminal=false
+Categories=Development;
+StartupWMClass=$APP_NAME
+EOF
+sudo chmod 644 "$DESKTOP"
+sudo update-desktop-database /usr/share/applications 2>/dev/null || true
+
+echo "==> Criando link simbólico em $BIN_LINK..."
+sudo ln -sfn "$DEST/$BINARY" "$BIN_LINK"
+
+if ! command -v herdr-core >/dev/null 2>&1; then
+    echo "==> Instalando herdr-core e hc em $BIN_DIR..."
+    curl -fsSL "$RELEASES_URL/core/install.sh" | sudo HC_INSTALL_DIR="$BIN_DIR" HERDR_RELEASES_URL="$RELEASES_URL" sh || \
+        echo "    [Aviso] Falha ao instalar herdr-core; o Herdr oferecerá a instalação ao abrir."
+fi
+
+if command -v restorecon >/dev/null 2>&1; then
+    echo "==> Aplicando contextos SELinux..."
+    sudo restorecon -RF "$DEST" "$ICON_DEST" "$DESKTOP" "$BIN_DIR" 2>/dev/null || true
+fi
+
+echo "✔ $APP_DISPLAY ${VERSION:-} instalado com sucesso em $DEST"
+{{ end -}}
