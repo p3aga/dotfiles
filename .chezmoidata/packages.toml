@@ -1,9 +1,10 @@
 [copr]
 enable = [
-  "wezfurlong/wezterm-nightly",
-  "jdxcode/mise"
+  "jdxcode/mise",
+  "scottames/ghostty"
 ]
 remove = [
+  "wezfurlong/wezterm-nightly",
   "dejan/lazygit",
   "lihaohong/yazi",
   "phracek/PyCharm"
@@ -21,6 +22,7 @@ install = [
   "eza",
   "fd-find",
   "fzf",
+  "ghostty",
   "git",
   "git-delta",
   "glib2",
@@ -46,7 +48,6 @@ install = [
   "vagrant",
   "vagrant-libvirt",
   "virt-manager",
-  "wezterm",
   "wireguard-tools",
   "zoxide",
   "zsh"
@@ -60,10 +61,11 @@ remove = [
   "gnome-tour", # system
   "lazygit",
   "mediawriter", # system
+  "ptyxis", # system
   "rhythmbox", # system
+  "wezterm",
   "yazi",
   "yelp", # system
-  "ptyxis" # system
 ]
 
 [flatpak]
